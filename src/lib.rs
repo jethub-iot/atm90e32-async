@@ -4,3 +4,5 @@
 //! ATM90E32 3-phase power meter driver (under construction)
 
 #![no_std]
+
+pub mod registers;

@@ -1,0 +1,33 @@
+version: 2
+updates:
+  # Keep GitHub Actions pinned to up-to-date major versions.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: ci
+      include: scope
+    labels:
+      - dependencies
+      - ci
+
+  # Keep cargo dependencies (embedded-hal-async, defmt) up to date.
+  - package-ecosystem: cargo
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: deps
+      include: scope
+    labels:
+      - dependencies
+      - rust
+    # Don't auto-bump the MSRV path — rust-version is a semver contract.
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]

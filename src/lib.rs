@@ -5,7 +5,9 @@
 
 #![no_std]
 
+pub mod config;
 pub mod error;
 pub mod registers;
 
+pub use crate::config::{Config, LineFreq, PgaGain};
 pub use crate::error::{Error, InitStage};

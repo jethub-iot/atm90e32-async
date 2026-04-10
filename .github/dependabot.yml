@@ -1,6 +1,9 @@
 version: 2
 updates:
   # Keep GitHub Actions pinned to up-to-date major versions.
+  # We intentionally track majors only (e.g. @v4 / @v6) so minor/patch
+  # fixes flow automatically, but we skip major-version bumps since
+  # they tend to be breaking and we want to audit them by hand.
   - package-ecosystem: github-actions
     directory: /
     schedule:
@@ -13,6 +16,9 @@ updates:
     labels:
       - dependencies
       - ci
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
 
   # Keep cargo dependencies (embedded-hal-async, defmt) up to date.
   - package-ecosystem: cargo

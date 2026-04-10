@@ -1,0 +1,117 @@
+name: Release
+
+# Triggered when a semver tag is pushed (e.g. v0.1.0, v0.2.1-rc.1).
+# Re-runs the full CI matrix, then publishes to crates.io and opens a
+# GitHub Release. The crates.io token lives in repo secrets as
+# CARGO_REGISTRY_TOKEN — create it at https://crates.io/settings/tokens
+# with scope `publish-new` (first release) or `publish-update` (patches).
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-*'
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: "-D warnings"
+
+jobs:
+  # Re-run the full CI matrix as a gate: if anything is red the release
+  # will not proceed. This is intentional duplication with ci.yml —
+  # tags are not automatically guaranteed to point at CI-passing commits.
+  verify:
+    name: Verify (re-run CI before publishing)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+          targets: thumbv7em-none-eabihf, riscv32imc-unknown-none-elf
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --all -- --check
+      - run: cargo clippy --all-targets --all-features -- -D warnings
+      - run: cargo test --all-features
+      - name: build for thumbv7em-none-eabihf
+        run: cargo build --lib --target thumbv7em-none-eabihf
+      - name: build for thumbv7em-none-eabihf (defmt)
+        run: cargo build --lib --target thumbv7em-none-eabihf --features defmt
+      - name: build for riscv32imc-unknown-none-elf
+        run: cargo build --lib --target riscv32imc-unknown-none-elf
+      - name: build for riscv32imc-unknown-none-elf (defmt)
+        run: cargo build --lib --target riscv32imc-unknown-none-elf --features defmt
+      - run: cargo doc --no-deps --all-features
+        env:
+          RUSTDOCFLAGS: "-D warnings"
+
+  # Confirm the tag matches the Cargo.toml version before publishing.
+  # Prevents "pushed v0.1.0 but Cargo.toml still says 0.0.9" mistakes.
+  verify-version:
+    name: Verify tag matches Cargo.toml version
+    runs-on: ubuntu-latest
+    needs: verify
+    steps:
+      - uses: actions/checkout@v6
+      - name: Extract versions
+        id: versions
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          CARGO_VERSION=$(grep '^version' Cargo.toml | head -1 | sed -E 's/version *= *"([^"]+)".*/\1/')
+          echo "tag=$TAG_VERSION" >> "$GITHUB_OUTPUT"
+          echo "cargo=$CARGO_VERSION" >> "$GITHUB_OUTPUT"
+          echo "Tag version:   $TAG_VERSION"
+          echo "Cargo version: $CARGO_VERSION"
+      - name: Fail if mismatch
+        if: steps.versions.outputs.tag != steps.versions.outputs.cargo
+        run: |
+          echo "::error::Tag ${{ steps.versions.outputs.tag }} does not match Cargo.toml version ${{ steps.versions.outputs.cargo }}"
+          exit 1
+
+  publish:
+    name: Publish to crates.io
+    runs-on: ubuntu-latest
+    needs: [verify, verify-version]
+    # Require explicit environment so reviewers can protect the secret
+    # with manual approval gates if desired.
+    environment: crates-io
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: cargo publish
+        run: cargo publish --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+  github-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: publish
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+      - name: Extract changelog section for this tag
+        id: changelog
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          # Extract the ## [x.y.z] section from CHANGELOG.md into a file,
+          # stopping at the next ## heading.
+          awk -v ver="$VERSION" '
+            $0 ~ "^## \\[" ver "\\]" { in_section = 1; next }
+            in_section && /^## / { exit }
+            in_section { print }
+          ' CHANGELOG.md > release-notes.md
+          if [ ! -s release-notes.md ]; then
+            echo "No changelog section found for version $VERSION, using generic body"
+            echo "Release $VERSION of the atm90e32 driver crate." > release-notes.md
+          fi
+          echo "Release notes preview:"
+          cat release-notes.md
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: release-notes.md
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          generate_release_notes: false
+          fail_on_unmatched_files: false

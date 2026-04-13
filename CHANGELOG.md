@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-04-13
+
+### Added
+
+* **Phase angle** readout: `read_phase_angle(phase)` and `phase_angle`
+  field in `PhaseReadings` (registers `PAngleA/B/C`, tenths of a
+  degree → degrees).
+* **Phase status** decoding: `read_status()` returns a `PhaseStatus`
+  struct with per-phase overcurrent, overvoltage, voltage sag, and
+  phase loss flags parsed from `EMMState0`/`EMMState1` registers.
+  Includes frequency-high/low and phase-sequence error flags.
+  `PhaseStatus::is_ok()` convenience method.
+* **Chip temperature** readout: `read_chip_temperature()` (register
+  `Temp`, signed °C).
+* New register constants: `REG_PANGLE_A/B/C`, `REG_EMMSTATE0/1`,
+  `REG_EMMINTSTATE0/1`, `REG_IPEAK_A/B/C`, `REG_TEMP`.
+* New sans-I/O converters: `phase_angle_raw_to_degrees`,
+  `chip_temperature_raw`.
+* 11 new unit tests (total: 29 host-runnable tests).
+
+### Changed
+
+* `PhaseReadings` now includes `phase_angle: [f32; 3]`.
+  **Breaking**: code that constructs `PhaseReadings` by field name
+  must add the new field.
+* `read_all_phases()` now performs 22 SPI transactions (was 19).
+
 ## [0.1.0] - 2026-04-10
 
 ### Added
@@ -58,5 +85,6 @@ detection, zero-crossing interrupts, calibration assist helpers,
 blocking (non-async) API variant, ATM90E36 and ATM90E26 support.
 See README for the full "what's in v0.1" / "not yet" breakdown.
 
-[Unreleased]: https://github.com/jethub-iot/atm90e32-async/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/jethub-iot/atm90e32-async/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/jethub-iot/atm90e32-async/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/jethub-iot/atm90e32-async/releases/tag/v0.1.0

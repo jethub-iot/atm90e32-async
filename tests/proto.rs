@@ -253,17 +253,17 @@ fn phase_angle_raw_to_degrees_conversion() {
 
 #[test]
 fn chip_temperature_positive() {
-    assert_eq!(chip_temperature_raw(25), 25.0);
-    assert_eq!(chip_temperature_raw(0), 0.0);
-    assert_eq!(chip_temperature_raw(85), 85.0);
+    assert_eq!(temperature_raw_to_celsius(25), 25.0);
+    assert_eq!(temperature_raw_to_celsius(0), 0.0);
+    assert_eq!(temperature_raw_to_celsius(85), 85.0);
 }
 
 #[test]
 fn chip_temperature_negative() {
     // -25 as i16 == 0xFFE7 as u16
-    assert_eq!(chip_temperature_raw(0xFFE7), -25.0);
+    assert_eq!(temperature_raw_to_celsius(0xFFE7), -25.0);
     // -1 as i16 == 0xFFFF as u16
-    assert_eq!(chip_temperature_raw(0xFFFF), -1.0);
+    assert_eq!(temperature_raw_to_celsius(0xFFFF), -1.0);
 }
 
 // ── PhaseStatus from EMM registers ──────────────────────────────────

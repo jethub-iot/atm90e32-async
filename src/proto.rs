@@ -123,7 +123,7 @@ pub fn phase_angle_raw_to_degrees(raw: u16) -> f32 {
 ///
 /// The register (`Temp`, 0xFC) is a signed 16-bit integer that reads
 /// directly as degrees Celsius with no additional scaling.
-pub fn chip_temperature_raw(raw: u16) -> f32 {
+pub fn temperature_raw_to_celsius(raw: u16) -> f32 {
     (raw as i16) as f32
 }
 

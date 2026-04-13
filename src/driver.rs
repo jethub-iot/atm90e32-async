@@ -290,7 +290,7 @@ where
     /// Read the raw chip temperature register.
     ///
     /// Returns the raw `u16` register value (signed when interpreted
-    /// as `i16`). Use [`proto::chip_temperature_raw`]
+    /// as `i16`). Use [`proto::temperature_raw_to_celsius`]
     /// to convert to `f32` degrees Celsius.
     pub async fn read_chip_temperature(&mut self) -> Result<u16, Error<SPI::Error>> {
         self.read_register(REG_TEMP).await

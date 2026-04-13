@@ -12,8 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 * **Phase angle** readout: `read_phase_angle(phase)` and `phase_angle`
-  field in `PhaseReadings` (registers `PAngleA/B/C`, tenths of a
-  degree → degrees).
+  field in `PhaseReadings` (registers `PAngleA/B/C`, raw tenths of a
+  degree; use `phase_angle_raw_to_degrees` to convert).
 * **Phase status** decoding: `read_status()` returns a `PhaseStatus`
   struct with per-phase overcurrent, overvoltage, voltage sag, and
   phase loss flags parsed from `EMMState0`/`EMMState1` registers.
@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * New register constants: `REG_PANGLE_A/B/C`, `REG_EMMSTATE0/1`,
   `REG_EMMINTSTATE0/1`, `REG_IPEAK_A/B/C`, `REG_TEMP`.
 * New sans-I/O converters: `phase_angle_raw_to_degrees`,
-  `chip_temperature_raw`.
+  `temperature_raw_to_celsius`.
 * 11 new unit tests (total: 29 host-runnable tests).
 
 ### Changed
@@ -39,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `read_chip_temperature`) now return raw register values instead
   of `f32`.
 * `PhaseReadings` now includes `phase_angle: [u16; 3]`.
-* `read_all_phases()` now performs 25 SPI transactions (was 19).
+* `read_all_phases()` now performs 25 SPI transactions (was 22).
 
 ## [0.1.0] - 2026-04-10
 

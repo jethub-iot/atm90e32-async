@@ -13,10 +13,9 @@
 //!
 //! ## Stability
 //!
-//! This module is currently marked `#[doc(hidden)]` at the crate root so
-//! unit tests in the `tests/` directory can reach it, but the specific API
-//! shape is not part of the public semver contract. Depend on it at your
-//! own risk.
+//! This module is part of the public API and follows the crate's semver
+//! contract. The raw-first driver API returns register values directly;
+//! use the conversion functions here to obtain engineering units.
 
 use crate::config::{Config, LineFreq};
 use crate::error::InitStage;

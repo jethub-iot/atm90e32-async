@@ -80,7 +80,6 @@
 pub mod config;
 pub mod driver;
 pub mod error;
-#[doc(hidden)]
 pub mod proto;
 pub mod readings;
 pub mod registers;

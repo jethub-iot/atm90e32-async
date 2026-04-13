@@ -30,26 +30,30 @@ don't need a mock SPI bus.
 
 ## Features
 
-What v0.1 does:
+What the current version does:
 
 * Chip presence probe via `SysStatus0`
 * Full init sequence (soft reset, unlock, enable, calibration gains,
   startup thresholds, freq thresholds, PGA, MMode0/1, lock) driven by
   a single `Config` struct
 * Bulk 3-phase readout: RMS voltage, RMS current, active power,
-  reactive power, power factor, mains frequency
+  reactive power, power factor, mains frequency, **phase angle**
 * Per-phase reads for each of the above
+* **Phase status** decoding: per-phase overcurrent, overvoltage,
+  voltage sag, phase loss, frequency warnings — from `EMMState0`/`EMMState1`
+* **Chip temperature** readout
 * Raw register read/write escape hatch (`read_register` / `write_register`)
 * Typed errors: `Error::Spi(E)`, `Error::NotPresent`,
   `Error::InitFailed(InitStage)` with a per-step breakdown
 * Optional `defmt::Format` derives behind the `defmt` feature
 * No heap, no global state, no hard runtime dependency
 
-What v0.1 does **not** do (PRs welcome):
+What is **not** yet implemented (PRs welcome):
 
 * Energy accumulation (`EPosA`/`EPosT`/…)
+* Apparent power (S) registers
 * Harmonic analysis registers
-* Sag / swell detection and zero-crossing interrupts
+* Zero-crossing interrupts
 * Calibration assist helpers (auto-gain)
 * ATM90E36 family support (planned — the code layout anticipates it)
 * ATM90E26 (8-bit addressing, out of scope)
@@ -75,7 +79,20 @@ where
     meter.init(&cfg).await?;
 
     let r = meter.read_all_phases().await?;
-    // r.voltage, r.current, r.power, r.reactive, r.pf, r.frequency
+    // Raw values — no f32 conversion until you need it:
+    // r.voltage[0] is hundredths of a volt (u16)
+    // r.power[0] is signed combined register word (i32)
+
+    // Convert on demand:
+    use atm90e32_async::proto;
+    let volts = proto::voltage_raw_to_volts(r.voltage[0]);
+
+    let status = meter.read_status().await?;
+    // status.overcurrent, status.overvoltage, status.voltage_sag, status.phase_loss
+    // status.is_ok()
+
+    let temp_raw = meter.read_chip_temperature().await?;
+    let temp_c = proto::temperature_raw_to_celsius(temp_raw);
     Ok(())
 }
 ```

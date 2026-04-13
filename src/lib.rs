@@ -56,13 +56,14 @@
 //! # }
 //! ```
 //!
-//! ## What's in v0.1
+//! ## What's implemented
 //!
-//! The current release implements the minimum feature set used by
-//! production JetHome PM380 meters: RMS voltage/current, active and
-//! reactive power, power factor, and mains frequency on all three
-//! phases. Not yet implemented (contributions welcome): energy
-//! accumulation, harmonic analysis, sag/swell detection,
+//! The driver covers the measurement set used by production JetHome
+//! PM380 meters: RMS voltage/current, active and reactive power,
+//! power factor, mains frequency, **phase angle**, **chip temperature**,
+//! and **phase status** (overcurrent, overvoltage, voltage sag, phase
+//! loss) on all three phases. Not yet implemented (contributions
+//! welcome): energy accumulation, apparent power, harmonic analysis,
 //! zero-crossing interrupts, and ATM90E36 family support.
 //!
 //! ## License
@@ -79,12 +80,13 @@
 pub mod config;
 pub mod driver;
 pub mod error;
-#[doc(hidden)]
 pub mod proto;
 pub mod readings;
 pub mod registers;
+pub mod status;
 
 pub use crate::config::{Config, LineFreq, PgaGain};
 pub use crate::driver::{Atm90e32, Phase};
 pub use crate::error::{Error, InitStage};
 pub use crate::readings::PhaseReadings;
+pub use crate::status::PhaseStatus;

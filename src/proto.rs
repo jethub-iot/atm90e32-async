@@ -13,10 +13,9 @@
 //!
 //! ## Stability
 //!
-//! This module is currently marked `#[doc(hidden)]` at the crate root so
-//! unit tests in the `tests/` directory can reach it, but the specific API
-//! shape is not part of the public semver contract. Depend on it at your
-//! own risk.
+//! This module is part of the public API and follows the crate's semver
+//! contract. The raw-first driver API returns register values directly;
+//! use the conversion functions here to obtain engineering units.
 
 use crate::config::{Config, LineFreq};
 use crate::error::InitStage;
@@ -87,6 +86,15 @@ pub fn power_raw_to_watts(high: u16, low: u16) -> f32 {
     combine_power_words(high, low) as f32 * POWER_SCALE
 }
 
+/// Convert a pre-combined 32-bit power word to watts (or vars).
+///
+/// This is the same scaling as [`power_raw_to_watts`] but accepts the
+/// already-combined `i32` value stored in
+/// [`PhaseReadings`](crate::PhaseReadings) `power` and `reactive` fields.
+pub fn power_combined_to_watts(raw: i32) -> f32 {
+    raw as f32 * POWER_SCALE
+}
+
 /// Convert a raw power-factor register value to a dimensionless factor.
 ///
 /// The raw value is a signed 16-bit integer in thousandths (so `1000` → 1.0,
@@ -100,6 +108,22 @@ pub fn power_factor_raw_to_unitless(raw: u16) -> f32 {
 /// The chip reports frequency in hundredths of a hertz.
 pub fn frequency_raw_to_hz(raw: u16) -> f32 {
     raw as f32 / 100.0
+}
+
+/// Convert a raw phase-angle register value to degrees.
+///
+/// The chip reports the mean phase angle in tenths of a degree
+/// (registers `PAngleA/B/C` at 0xF9–0xFB).
+pub fn phase_angle_raw_to_degrees(raw: u16) -> f32 {
+    raw as f32 / 10.0
+}
+
+/// Convert a raw chip-temperature register value to degrees Celsius.
+///
+/// The register (`Temp`, 0xFC) is a signed 16-bit integer that reads
+/// directly as degrees Celsius with no additional scaling.
+pub fn temperature_raw_to_celsius(raw: u16) -> f32 {
+    (raw as i16) as f32
 }
 
 // ── Init sequence as data ────────────────────────────────────────────

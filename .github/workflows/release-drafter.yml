@@ -1,7 +1,10 @@
 name: Release Drafter
 
 # Keeps a "Next release" draft GitHub Release up to date as PRs are
-# merged into master. Each merge:
+# merged into master. Triggers only on push to master (i.e. after a PR
+# is merged), not on PR open/update.
+#
+# Each run:
 #   * Computes the next version (next minor bump from the most recent
 #     published Release).
 #   * Re-generates the draft body with the PR titles/bodies since
@@ -18,8 +21,6 @@ on:
   push:
     branches:
       - master
-  pull_request:
-    types: [opened, reopened, synchronize]
 
 permissions:
   contents: read

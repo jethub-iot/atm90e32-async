@@ -91,7 +91,8 @@ where
     // status.overcurrent, status.overvoltage, status.voltage_sag, status.phase_loss
     // status.is_ok()
 
-    let temp = meter.read_chip_temperature().await?;
+    let temp_raw = meter.read_chip_temperature().await?;
+    let temp_c = proto::temperature_raw_to_celsius(temp_raw);
     Ok(())
 }
 ```

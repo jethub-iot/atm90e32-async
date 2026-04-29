@@ -1,6 +1,6 @@
 # atm90e32-async
 
-[![CI](https://github.com/jethub-iot/atm90e32-async/actions/workflows/ci.yml/badge.svg)](https://github.com/jethub-iot/atm90e32-async/actions/workflows/ci.yml)
+[![CI](https://github.com/jethub-iot/atm90e32-async-rs/actions/workflows/ci.yml/badge.svg)](https://github.com/jethub-iot/atm90e32-async-rs/actions/workflows/ci.yml)
 [![Crates.io](https://img.shields.io/crates/v/atm90e32-async.svg)](https://crates.io/crates/atm90e32-async)
 [![Documentation](https://docs.rs/atm90e32-async/badge.svg)](https://docs.rs/atm90e32-async)
 [![License: GPL-2.0-or-later OR Apache-2.0](https://img.shields.io/badge/license-GPL--2.0--or--later%20OR%20Apache--2.0-blue.svg)](#license)

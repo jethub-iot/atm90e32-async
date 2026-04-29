@@ -92,6 +92,6 @@ detection, zero-crossing interrupts, calibration assist helpers,
 blocking (non-async) API variant, ATM90E36 and ATM90E26 support.
 See README for the full "what's in v0.1" / "not yet" breakdown.
 
-[Unreleased]: https://github.com/jethub-iot/atm90e32-async/compare/v0.2.0...HEAD
-[0.2.0]: https://github.com/jethub-iot/atm90e32-async/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/jethub-iot/atm90e32-async/releases/tag/v0.1.0
+[Unreleased]: https://github.com/jethub-iot/atm90e32-async-rs/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/jethub-iot/atm90e32-async-rs/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/jethub-iot/atm90e32-async-rs/releases/tag/v0.1.0
